@@ -1,0 +1,161 @@
+module point_in (
+	input Clk, 
+	input Reset,
+	input [4:0][2:0][35:0] all_proj_vertex_in,
+	input draw_surface_start,
+	//input [5:0] out1,
+	input [5:0][5:0] para_out,
+	output	[10:0] 	x,
+					y,
+
+	output	[23:0]	color_out,
+	output draw_surface_done
+);
+
+	// pixel traverse the screen 
+	
+	logic [10:0] count_h, count_v;
+	logic [15:0] z1, z2, z3, z1_add_z2, z1_add_z2_add_z3;
+	logic overflow0, overflow1, overflow2, overflow3, overflow4, overflow5, overflow6, overflow7;
+	
+
+
+	logic [3:0] find_max[0:5];
+
+	enum logic [2:0] {Wait, Draw, Done} curr_state, next_state;
+	
+	/*always_comb
+	begin
+		if(curr_state == Draw)
+		begin
+			if(Z[0] > Z[1])
+				color_out = color[0];
+			else
+				color_out = color[1];
+		end
+		else
+			color_out =   0;
+	end*/
+	assign find_max[0] = (Z[0] > Z[1]) ? 4'd0 : 4'd1;
+	assign find_max[1] = (Z[2] > Z[3]) ? 4'd2 : 4'd3;
+	/*assign find_max[2] = (ram_out[4] > ram_out[5]) ? 4'd4 : 4'd5;
+	assign find_max[3] = (ram_out[6] > ram_out[7]) ? 4'd6 : 4'd7;
+	assign find_max[4] = (ram_out[8] > ram_out[9]) ? 4'd8 : 4'd9;*/
+	assign find_max[5] = (Z[find_max[0]] > Z[find_max[1]]) ? find_max[0] : find_max[1];
+	/*assign find_max[6] = (ram_out[find_max[2]] > ram_out[find_max[3]]) ? find_max[2] : find_max[3];	
+	/*assign find_max[7] = (ram_out[find_max[5]] > ram_out[find_max[6]]) ? find_max[5] : find_max[6];*/
+	
+	
+	
+	logic signed [19:0] Z [0:4];
+	logic [23:0] color [0:4];
+	//dot_product #(.WII(WOI), .WIF(WOF), .WOI(WOI), .WOF(WOF)) dp01(.a0(mvp[4]), .a1(mvp[5]), .a2(mvp[6]), .a3(mvp[7]), .b0(vertex_a[0]), .b1(vertex_a[1]), .b2(vertex_a[2]), .b3(vertex_a[3]), .res(y1));
+	genvar i;
+	generate
+		for(i = 0; i < 4; i = i + 1)begin :Z_cal
+			Z_and_color Z1(
+			.proj_vertex_in(all_proj_vertex_in[i]),
+			.set(i),
+			.x(count_h),
+			.y(count_v),
+			.para_out(para_out[i]),
+			.z(Z[i]),
+			.color(color[i])
+			);
+		end
+	endgenerate
+	
+
+always_ff @(posedge Clk)
+begin
+	if (Reset) begin
+		x <= 0;
+		y <= 0;
+		draw_surface_done <= 0;
+		color_out <= 0;
+	end
+	else begin
+		x <= count_h;
+		y <= count_v;
+		color_out <=  (curr_state == Draw)? color[find_max[5]] : 0;
+		if (curr_state == Done)
+			draw_surface_done <= 1'b1;
+		else
+			draw_surface_done <= 0;
+	end
+end
+
+always_ff @(posedge Clk)
+begin
+    if (Reset) begin
+        curr_state <= Wait;
+		count_h <= 11'd0;
+		count_v <= 11'd0;
+	end
+	else begin
+        curr_state <= next_state;
+		if(curr_state == Draw)begin
+			if (count_h == 10'd639)begin
+				count_h <= 11'd0;
+				count_v <= count_v + 1'b1;
+			end
+			else if(count_v == 11'd479 && count_h == 10'd639) 
+				count_v <= 11'd0;
+			else
+				count_h <= count_h + 1'b1;
+		end
+		else begin
+			count_v <= 11'd0;
+			count_h <= 11'd0;
+		end
+		
+	end
+end
+
+        
+
+always_comb
+begin
+    // default setting
+    next_state = curr_state;
+    //draw_surface_done = 1'b0;
+
+    // change state
+    unique case (curr_state)
+    Wait:
+    begin
+        if(draw_surface_start)
+            next_state = Draw;
+    end
+    Draw:
+    begin
+        if(count_v == 11'd479 && count_h == 10'd639) 
+            next_state = Done;
+    end
+    Done:
+    begin
+            next_state = Wait;
+    end
+    endcase
+    
+    // output logic
+    case (curr_state)
+    Wait:
+    begin
+    end
+    Draw:
+    begin
+        
+    end
+    Done:
+	begin
+        
+		
+	end
+	
+    endcase
+end
+endmodule
+
+
+

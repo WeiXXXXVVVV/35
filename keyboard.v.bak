@@ -1,0 +1,53 @@
+module keyboard(    input Clk, Reset,
+                    input [11:0] SW,
+                    output [11:0] keycode
+                );
+				
+		reg [11:0] out;
+		always@(posedge Clk)
+		begin
+			if(Reset)
+				out <= 0;
+			else if(SW[0])
+				 // w
+				out <= 8'h1A;
+            else if(SW[1])
+				// s
+				out <= 8'h16;
+            else if(SW[2]) 
+				// a
+				out <= 8'h04;
+			else if(SW[3])
+				// d
+				out <= 8'h07;	
+			else if(SW[4])
+				// q
+				out <= 8'h14;
+			else if(SW[5])
+				// e
+				out <= 8'h08;
+				
+			else if(SW[6])
+				// u
+				out <= 8'h52;
+			else if(SW[7])
+				// d
+				out <= 8'h51;
+			else if(SW[8])
+				// l
+				out <= 8'h50;
+			else if(SW[9])
+				// r
+				out <= 8'h4f;
+			else if(SW[10])
+				// 
+				out <= 8'h1d;
+			else if(SW[11])
+				// 
+				out <= 8'h1b;
+			else 
+				out <= 0;
+		end
+		
+		assign keycode = out;
+endmodule
