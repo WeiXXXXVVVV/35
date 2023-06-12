@@ -7,13 +7,13 @@ module light#(
     parameter WOF = 8
 ) (inax,inay,inaz,inbx,inby,inbz,incx,incy,incz,para_outr);
 //input clk,rst;
-input signed [WII+WIF-1:0] inax,inay,inaz,inbx,inby,inbz,incx,incy,incz;
+input  [WII+WIF-1:0] inax,inay,inaz,inbx,inby,inbz,incx,incy,incz;
 //input [143:0] in1;
 output wire [5:0] para_outr;
 
 wire [31:0] v1,v2,v3; //normal vector
 wire [15:0] l1,l2,l3; //light 
-wire signed [15:0] va1,va2,va3,vb1,vb2,vb3;//vectorab
+wire  [15:0] va1,va2,va3,vb1,vb2,vb3;//vectorab
 //wire [15:0] 
 wire [31:0] vt1,vt2,vt3,vt4,vt5,vt6; 
 wire [63:0] m1,m2,m3,m4,m5,m6,m7,m8,m9;
@@ -29,25 +29,20 @@ wire o1,o2,o3,o4,o5,o6,o7,o8,o9,o10,o11,o12,o13,o14,o15,o16,o17,o18,o19,o20,o21,
 wire [31:0] cos;
 wire [5:0] cos1,out2,low;
 assign cos1 = cos[17:12];
-assign l1 =16'b0000000100000000;
+/*assign l1 =16'b0000000100000000;
 assign l2 =16'b0000000100000000;
-assign l3 =16'b0000000100000000;
-assign n1 = norm1[63:32];
+assign l3 =16'b0000000100000000;*/
+assign l1 =16'h0000;
+assign l2 =16'h0100;
+assign l3 =16'h0000;	
+/*assign n1 = norm1[63:32];
 assign n2 = norm2[63:32];
-assign n3 = norm3[63:32];
-assign out2 = cos1+6'b001000;
-assign low = 6'b001000;
+assign n3 = norm3[63:32];*/
+assign out2 = cos1+8'b00001000;
+assign low = 8'b00001000;
 assign sq2 = 16'b00000000000000011011101101101000;
-/*always_comb begin
 
-    if($signed(norm1)<=0  )begin
-	   out1=low;
-	  end
-    else begin
-	   out1 =out2;
-	   end
-    
-end*/
+
 assign para_outr=($signed(norm1)<=0)?low:out2;
 //assign para_outr =6'b001000;
 
@@ -123,44 +118,44 @@ fxp_addsub #(
 fxp_mul #(
     .WIIA(WII), .WIFA(WIF),
     .WIIB(WII), .WIFB(WIF),
-    .WOI(16), .WOF(16), .ROUND(1)
+	.WOI(8), .WOF(8), .ROUND(1)
 ) mul30 (.ina(va2), .inb(vb3), .out(vt1), .overflow(o8));
 
 fxp_mul #(
     .WIIA(WII), .WIFA(WIF),
     .WIIB(WII), .WIFB(WIF),
-    .WOI(16), .WOF(16), .ROUND(1)
+	.WOI(8), .WOF(8), .ROUND(1)
 ) mul31 (.ina(va3), .inb(vb1), .out(vt2), .overflow(o9));
 
 fxp_mul #(
     .WIIA(WII), .WIFA(WIF),
     .WIIB(WII), .WIFB(WIF),
-    .WOI(16), .WOF(16), .ROUND(1)
+	.WOI(8), .WOF(8), .ROUND(1)
 ) mul32 (.ina(va1), .inb(vb2), .out(vt3), .overflow(o10));
 
 
 fxp_mul #(
     .WIIA(WII), .WIFA(WIF),
     .WIIB(WII), .WIFB(WIF),
-    .WOI(16), .WOF(16), .ROUND(1)
+	.WOI(8), .WOF(8), .ROUND(1)
 ) mul33 (.ina(va3), .inb(vb2), .out(vt4), .overflow(o11));
 
 fxp_mul #(
     .WIIA(WII), .WIFA(WIF),
     .WIIB(WII), .WIFB(WIF),
-    .WOI(16), .WOF(16), .ROUND(1)
+	.WOI(8), .WOF(8), .ROUND(1)
 ) mul34 (.ina(va1), .inb(vb3), .out(vt5), .overflow(o12));
 
 fxp_mul #(
     .WIIA(WII), .WIFA(WIF),
     .WIIB(WII), .WIFB(WIF),
-    .WOI(16), .WOF(16), .ROUND(1)
+	.WOI(8), .WOF(8), .ROUND(1)
 ) mul35 (.ina(va2), .inb(vb1), .out(vt6), .overflow(o13));
 
 fxp_addsub #(
-    .WIIA(16), .WIFA(16),
-    .WIIB(16), .WIFB(16),
-    .WOI(16), .WOF(16), .ROUND(1)
+	.WIIA(8), .WIFA(8),
+	.WIIB(8), .WIFB(8),
+	.WOI(8), .WOF(8), .ROUND(1)
 ) admn6(
     .ina(vt1),
     .inb(vt4),
@@ -169,9 +164,9 @@ fxp_addsub #(
     .overflow(o14)
 );
 fxp_addsub #(
-    .WIIA(16), .WIFA(16),
-    .WIIB(16), .WIFB(16),
-    .WOI(16), .WOF(16), .ROUND(1)
+	.WIIA(8), .WIFA(8),
+	.WIIB(8), .WIFB(8),
+	.WOI(8), .WOF(8), .ROUND(1)
 ) admn7(
     .ina(vt2),
     .inb(vt5),
@@ -180,9 +175,9 @@ fxp_addsub #(
     .overflow(o15)
 );
 fxp_addsub #(
-    .WIIA(16), .WIFA(16),
-    .WIIB(16), .WIFB(16),
-    .WOI(16), .WOF(16), .ROUND(1)
+	.WIIA(8), .WIFA(8),
+	.WIIB(8), .WIFB(8),
+	.WOI(8), .WOF(8), .ROUND(1)
 ) admn8(
     .ina(vt3),
     .inb(vt6),
@@ -194,19 +189,19 @@ fxp_addsub #(
 
 //Inner product
 fxp_mul #(
-    .WIIA(16), .WIFA(16),
+	.WIIA(8), .WIFA(8),
     .WIIB(8), .WIFB(8),
-    .WOI(32), .WOF(32), .ROUND(1)
+	.WOI(8), .WOF(8), .ROUND(1)
 ) mul36 (.ina(v1), .inb(l1), .out(m1), .overflow(o14));
 fxp_mul #(
-    .WIIA(16), .WIFA(16),
+	.WIIA(8), .WIFA(8),
     .WIIB(8), .WIFB(8),
-    .WOI(32), .WOF(32), .ROUND(1)
+	.WOI(8), .WOF(8), .ROUND(1)
 ) mul37 (.ina(v2), .inb(l2), .out(m2), .overflow(o15));
 fxp_mul #(
-    .WIIA(16), .WIFA(16),
+	.WIIA(8), .WIFA(8),
     .WIIB(8), .WIFB(8),
-    .WOI(32), .WOF(32), .ROUND(1)
+	.WOI(8), .WOF(8), .ROUND(1)
 ) mul38 (.ina(v3), .inb(l3), .out(m3), .overflow(o16));
 
 assign norm1=m1+m2+m3;
@@ -214,19 +209,19 @@ assign norm1=m1+m2+m3;
 
 
 fxp_mul #(
-    .WIIA(16), .WIFA(16),
-    .WIIB(16), .WIFB(16),
-    .WOI(32), .WOF(32), .ROUND(1)
+	.WIIA(8), .WIFA(8),
+	.WIIB(8), .WIFB(8),
+	.WOI(8), .WOF(8), .ROUND(1)
 ) mul66 (.ina(v1), .inb(v1), .out(m4), .overflow(o17));
 fxp_mul #(
-    .WIIA(16), .WIFA(16),
-    .WIIB(16), .WIFB(16),
-    .WOI(32), .WOF(32), .ROUND(1)
+	.WIIA(8), .WIFA(8),
+	.WIIB(8), .WIFB(8),
+	.WOI(8), .WOF(8), .ROUND(1)
 ) mul77 (.ina(v2), .inb(v2), .out(m5), .overflow(o18));
 fxp_mul #(
-    .WIIA(16), .WIFA(16),
-    .WIIB(16), .WIFB(16),
-    .WOI(32), .WOF(32), .ROUND(1)
+	.WIIA(8), .WIFA(8),
+	.WIIB(8), .WIFB(8),
+	.WOI(8), .WOF(8), .ROUND(1)
 ) mul88 (.ina(v3), .inb(v3), .out(m6), .overflow(o19));
 
 assign norm2=m4+m5+m6;
