@@ -26,7 +26,22 @@ module Z_and_color (
 		assign w0 = (x - proj_vertex[1][35:26]) * (proj_vertex[2][25:16] - proj_vertex[1][25:16]) - (y - proj_vertex[1][25:16]) * (proj_vertex[2][35:26] - proj_vertex[1][35:26]);
 		assign w1 = (x - proj_vertex[2][35:26]) * (proj_vertex[0][25:16] - proj_vertex[2][25:16]) - (y - proj_vertex[2][25:16]) * (proj_vertex[0][35:26] - proj_vertex[2][35:26]);
 		assign w2 = (x - proj_vertex[0][35:26]) * (proj_vertex[1][25:16] - proj_vertex[0][25:16]) - (y - proj_vertex[0][25:16]) * (proj_vertex[1][35:26] - proj_vertex[0][35:26]);
- 
+
+	        logic [10:0] new_proj_vertex_ax,new_proj_vertex_ay,new_proj_vertex_bx,new_proj_vertex_by,new_proj_vertex_bx,new_proj_vertex_bz;
+	logic [11:0] new_x,new_y;
+	assign new_proj_vertex_ax = {proj_vertex[0][35:26],1'b0};
+	assign new_proj_vertex_ay = {proj_vertex[0][25:16],1'b0};
+	assign new_proj_vertex_bx = {proj_vertex[1][35:26],1'b0};
+	assign new_proj_vertex_by = {proj_vertex[1][25:16],1'b0};
+	assign new_proj_vertex_cx = {proj_vertex[2][35:26],1'b0};
+	assign new_proj_vertex_cy = {proj_vertex[2][25:16],1'b0};
+
+	assign new_x = {x,1'b1};
+	assign new_y = {y,1'b1};     
+	assign w0 = (x -new_proj_vertex_bx) * (new_proj_vertex_cy - new_proj_vertex_by) - (y - new_proj_vertex_by) * (new_proj_vertex_cx -new_proj_vertex_bx);
+		assign w1 = (x - new_proj_vertex_cx) * (new_proj_vertex_ay - new_proj_vertex_cy) - (y - new_proj_vertex_cy) * (new_proj_vertex_ax - new_proj_vertex_cx);
+		assign w2 = (x - new_proj_vertex_ax) * (new_proj_vertex_by - new_proj_vertex_ay) - (y - new_proj_vertex_ay) * (new_proj_vertex_bx - new_proj_vertex_ax);
+               
 		
 		assign z = (w0 > 5 && w1 > 5 && w2 > 5) ? z_reult : {{1'b1},{19{1'b0}}};
 		assign color = ( proj_vertex[0][35:26] > 640 || proj_vertex[1][35:26] > 640 || proj_vertex[2][35:26] > 640 
